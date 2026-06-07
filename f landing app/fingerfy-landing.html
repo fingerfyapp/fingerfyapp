@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fingerfy protege a los menores en plataformas digitales verificando la edad sin fotografías, sin datos personales y sin fricción. Solución de compliance para videojuegos y juego online.">
+<title>Fingerfy · Verificación de edad sin imagen · Protección de menores</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   DESIGN SYSTEM
+══════════════════════════════════════ */
+:root {
+  --bg:        #080C12;
+  --bg2:       #0E1420;
+  --bg3:       #141C2C;
+  --surface:   #1A2338;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --gold:      #D4A85A;
+  --gold2:     #F0C878;
+  --gold-dim:  rgba(212,168,90,0.12);
+  --gold-glow: rgba(212,168,90,0.2);
+  --teal:      #4DD9AC;
+  --teal-dim:  rgba(77,217,172,0.1);
+  --red:       #FF5A5A;
+  --white:     #F2F4F8;
+  --muted:     rgba(242,244,248,0.45);
+  --dim:       rgba(242,244,248,0.2);
+  --serif:     'Instrument Serif', Georgia, serif;
+  --sans:      'Outfit', sans-serif;
+  --mono:      'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NOISE TEXTURE ─────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+/* ── NAV ───────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(8,12,18,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.nav-logo {
+  font-family: var(--sans);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  letter-spacing: 0.02em;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  padding: 8px 20px;
+  background: var(--gold);
+  color: var(--bg) !important;
+  border-radius: 6px;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  transition: background 0.2s, transform 0.15s !important;
+}
+.nav-cta:hover { background: var(--gold2) !important; transform: translateY(-1px); }
+
+/* ── HERO ──────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 120px 48px 80px;
+  overflow: hidden;
+}
+
+/* ambient glow */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 10%; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(212,168,90,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-glow-left {
+  position: absolute;
+  top: 30%; left: -5%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(77,217,172,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-glow-right {
+  position: absolute;
+  top: 20%; right: -5%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(212,168,90,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* grid lines */
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.hero-grid::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%);
+}
+
+.hero-inner {
+  position: relative; z-index: 1;
+  text-align: center;
+  max-width: 860px;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(77,217,172,0.25);
+  background: var(--teal-dim);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(42px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+.hero-title .hero-title-line2 {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8em;
+}
+
+.hero-subtitle {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 24px auto 0;
+  font-weight: 300;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.hero-subtitle strong { color: var(--white); font-weight: 500; }
+
+.hero-actions {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px;
+  margin-top: 44px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.btn-primary:hover {
+  background: var(--gold2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(212,168,90,0.3);
+}
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-secondary:hover {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.04);
+  transform: translateY(-2px);
+}
+
+.hero-trust {
+  margin-top: 56px;
+  animation: fadeUp 0.6s 0.4s ease both;
+}
+.hero-trust-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hero-trust-items {
+  display: flex; align-items: center; justify-content: center;
+  gap: 32px; flex-wrap: wrap;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--dim);
+}
+.trust-item svg {
+  width: 14px; height: 14px;
+  stroke: var(--teal); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SECTION WRAPPER ───────────────── */
+.section {
+  position: relative; z-index: 1;
+  padding: 96px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-center { text-align: center; }
+.section-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.section-title em { font-style: italic; color: var(--gold); }
+.section-lead {
+  font-size: 16px;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+
+/* ── PROBLEM SECTION ───────────────── */
+.problem-section {
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 56px;
+}
+.problem-card {
+  background: var(--bg2);
+  padding: 32px 28px;
+  transition: background 0.2s;
+}
+.problem-card:hover { background: var(--bg3); }
+.problem-icon {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: rgba(255,90,90,0.1);
+  border: 1px solid rgba(255,90,90,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.problem-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.problem-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.problem-stat {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--red);
+  margin-bottom: 4px;
+}
+
+/* ── HOW IT WORKS ──────────────────── */
+.how-section { }
+.how-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-top: 64px;
+}
+.how-visual {
+  position: relative;
+}
+.phone-mock {
+  width: 240px;
+  margin: 0 auto;
+  position: relative;
+}
+.phone-body {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 32px;
+  padding: 12px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+}
+.phone-screen {
+  background: var(--bg);
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 9/19;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px 16px;
+  position: relative;
+  gap: 12px;
+}
+.phone-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(212,168,90,0.04) 0%, transparent 50%, rgba(77,217,172,0.03) 100%);
+}
+.phone-diagonal {
+  position: absolute;
+  width: 2px;
+  height: 70%;
+  background: linear-gradient(180deg, transparent, rgba(77,217,172,0.4), transparent);
+  transform: rotate(-30deg);
+  top: 15%;
+}
+.phone-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  position: absolute;
+}
+.phone-dot-1 { background: rgba(77,217,172,0.7); bottom: 35%; left: 30%; animation: float 3s 0s ease-in-out infinite; }
+.phone-dot-2 { background: rgba(77,217,172,0.6); bottom: 45%; left: 55%; animation: float 3s 0.5s ease-in-out infinite; }
+.phone-dot-3 { background: rgba(77,217,172,0.5); bottom: 38%; left: 45%; animation: float 3s 1s ease-in-out infinite; }
+.phone-dot-4 { background: rgba(77,217,172,0.4); bottom: 42%; left: 35%; animation: float 3s 1.5s ease-in-out infinite; }
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.1); }
+}
+.phone-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: rgba(77,217,172,0.6);
+  letter-spacing: 0.1em;
+  text-align: center;
+  z-index: 1;
+  position: absolute;
+  bottom: 20%;
+}
+.phone-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.03);
+  border-radius: 24px;
+  animation: flash 4s 2s ease-in-out infinite;
+}
+@keyframes flash {
+  0%, 85%, 100% { opacity: 0; }
+  87%, 89% { opacity: 1; }
+}
+
+.phone-glow {
+  position: absolute;
+  bottom: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 180px; height: 60px;
+  background: radial-gradient(ellipse, rgba(77,217,172,0.15) 0%, transparent 70%);
+}
+
+.how-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.how-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-glow);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-content {}
+.step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.step-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.step-tag {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  background: var(--teal-dim);
+  border: 1px solid rgba(77,217,172,0.15);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--teal);
+  letter-spacing: 0.06em;
+}
+
+/* ── BENEFITS ──────────────────────── */
+.benefits-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+}
+.benefit-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-glow), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.benefit-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.benefit-card:hover::before { opacity: 1; }
+.benefit-icon {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+.benefit-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.benefit-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.benefit-highlight {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+
+/* ── COMPLIANCE ────────────────────── */
+.compliance-bar {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 36px;
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.compliance-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--muted);
+}
+.compliance-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--teal-dim);
+  border: 1px solid rgba(77,217,172,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.compliance-label { font-size: 12px; font-weight: 500; color: var(--white); }
+.compliance-sub { font-size: 11px; color: var(--muted); }
+
+/* ── COMPARISON ────────────────────── */
+.comparison-table {
+  margin-top: 56px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.comparison-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  background: var(--surface);
+  padding: 16px 24px;
+  gap: 0;
+}
+.comparison-header-cell {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--muted);
+}
+.comparison-header-cell.highlight {
+  color: var(--gold);
+  position: relative;
+}
+.comparison-header-cell.highlight::after {
+  content: '★ Nosotros';
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.comparison-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  transition: background 0.15s;
+  align-items: center;
+}
+.comparison-row:hover { background: var(--bg3); }
+.comparison-feature {
+  font-size: 13px;
+  color: var(--muted);
+}
+.comparison-cell {
+  text-align: center;
+  font-size: 16px;
+}
+.check { color: var(--teal); }
+.cross { color: rgba(255,90,90,0.6); }
+.partial { color: var(--gold); font-size: 13px; }
+
+/* ── SOCIAL PROOF ──────────────────── */
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 56px;
+}
+.proof-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.proof-card-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.proof-card-stat {
+  font-family: var(--serif);
+  font-size: 36px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.proof-card-label {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── CTA SECTION ───────────────────── */
+.cta-section {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+  border-top: 1px solid var(--border);
+}
+.cta-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.cta-card {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.cta-card.primary-card {
+  border-color: var(--gold-glow);
+  background: linear-gradient(135deg, rgba(212,168,90,0.04) 0%, var(--bg) 60%);
+}
+.cta-card.primary-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.cta-card-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.cta-card-tag.teal { color: var(--teal); }
+.cta-card-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+.cta-card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.cta-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.form-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input::placeholder { color: var(--dim); }
+.form-input:focus { border-color: var(--gold-glow); }
+.form-select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--muted);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(242,244,248,0.3)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.form-select option { background: var(--bg2); }
+.form-note {
+  font-size: 10.5px;
+  color: var(--dim);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.form-note a { color: var(--gold); text-decoration: none; }
+
+/* ── FOOTER ────────────────────────── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.footer-logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--white);
+}
+.footer-logo span { color: var(--gold); }
+.footer-links {
+  display: flex; gap: 24px; list-style: none;
+}
+.footer-links a {
+  font-size: 12px;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--muted); }
+.footer-legal {
+  font-size: 11px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+.footer-patent {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+.footer-patent::before {
+  content: '🔒';
+  font-size: 10px;
+}
+
+/* ── SCROLL REVEAL ─────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ────────────────────── */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .section { padding: 64px 24px; }
+  .how-layout { grid-template-columns: 1fr; }
+  .phone-mock { display: none; }
+  .benefits-grid { grid-template-columns: 1fr; }
+  .problem-grid { grid-template-columns: 1fr; }
+  .proof-grid { grid-template-columns: 1fr; }
+  .cta-layout { grid-template-columns: 1fr; }
+  .comparison-header, .comparison-row { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
+  footer { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo">finger<span>fy</span></a>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Cómo funciona</a></li>
+    <li><a href="#ventajas">Ventajas</a></li>
+    <li><a href="#compliance">Compliance</a></li>
+    <li><a href="#contacto" class="nav-cta">Solicitar demo →</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ──────────────────────────── -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow-left"></div>
+  <div class="hero-glow-right"></div>
+  <div class="hero-inner">
+
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Tecnología con solicitud de patente en trámite · OEPM
+    </div>
+
+    <h1 class="hero-title">
+      Protege a los menores<br>
+      <em>sin fotografías.</em>
+      <span class="hero-title-line2">Sin datos. Sin fricción.</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Fingerfy verifica la edad de tus usuarios en <strong>10 segundos</strong>, usando solo la pantalla táctil que ya tienen. <strong>Sin cámara. Sin documento. Sin almacenar datos biométricos.</strong> RGPD compliant por diseño.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#contacto" class="btn-primary">
+        Solicitar demo empresarial →
+      </a>
+      <a href="#early-access" class="btn-secondary">
+        Unirse a early access
+      </a>
+    </div>
+
+    <div class="hero-trust">
+      <div class="hero-trust-label">Validado por</div>
+      <div class="hero-trust-items">
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Universidad de Alicante · Facultad de Ingeniería Informática
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          2 Patentes en trámite · OEPM
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Prototipo validado con usuarios reales
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PROBLEMA ───────────────────────── -->
+<section style="background:linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section section-center reveal">
+    <span class="section-tag">El problema</span>
+    <h2 class="section-title">Los sistemas actuales<br>fallan a todos</h2>
+    <p class="section-lead">Verificar que un usuario es adulto sigue siendo un problema sin resolver. Las soluciones existentes crean más riesgos de los que eliminan.</p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-stat">+600M€</div>
+        <div class="problem-icon">📷</div>
+        <div class="problem-title">Selfie obligatoria a menores</div>
+        <div class="problem-desc">Los sistemas actuales piden fotografía facial o DNI. Generan datos biométricos de menores — categoría especial bajo el RGPD — y son bypasseables fácilmente con cuentas de terceros.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-stat">~0%</div>
+        <div class="problem-icon">🚫</div>
+        <div class="problem-title">Efectividad real nula</div>
+        <div class="problem-desc">Un menor puede acceder a cualquier plataforma con una cuenta de adulto adquirida en mercados secundarios. La verificación facial no impide el acceso — solo añade fricción a los usuarios legítimos.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-stat">Clase IIa</div>
+        <div class="problem-icon">⚠️</div>
+        <div class="problem-title">Riesgo regulatorio creciente</div>
+        <div class="problem-desc">La Ley de Servicios Digitales de la UE (DSA), el Reglamento de IA y la normativa de protección de menores española exigen soluciones que no generen nuevos riesgos para los propios menores.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CÓMO FUNCIONA ─────────────────── -->
+<section id="como-funciona">
+  <div class="section reveal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:56px;">
+      <div>
+        <span class="section-tag">Cómo funciona</span>
+        <h2 class="section-title" style="margin-bottom:0;">Un gesto.<br><em>Tres capas de análisis.</em></h2>
+      </div>
+      <p style="max-width:320px;font-size:14px;color:var(--muted);line-height:1.7;font-weight:300;">El usuario no sabe qué medimos, pero disfruta de tu contenido sin hardware adicional.</p>
+    </div>
+
+    <div class="how-layout">
+      <div class="how-visual">
+        <div class="phone-mock">
+          <div class="phone-body">
+            <div class="phone-screen">
+              <div class="phone-diagonal"></div>
+              <div class="phone-flash"></div>
+              <div class="phone-dot phone-dot-1"></div>
+              <div class="phone-dot phone-dot-2"></div>
+              <div class="phone-dot phone-dot-3"></div>
+              <div class="phone-dot phone-dot-4"></div>
+              <div class="phone-label">VERIFICANDO EDAD</div>
+            </div>
+          </div>
+          <div class="phone-glow"></div>
+        </div>
+      </div>
+
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">El usuario apoya sus dedos</div>
+            <div class="step-desc">El usuario interactúa con la pantalla de forma completamente natural. No percibe ningún proceso de verificación. No hay cámara. No hay formulario.</div>
+            <span class="step-tag">Experiencia invisible · 10 segundos</span>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Tres capas de análisis simultáneo</div>
+            <div class="step-desc">El sistema analiza simultáneamente variables cognitivo-conductuales, biométricas y biomecánicas. Cada capa aporta una señal independiente de clasificación etaria.</div>
+            <span class="step-tag">Algoritmo con patente en trámite</span>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">Clasificación adulto / menor</div>
+            <div class="step-desc">El sistema produce una clasificación probabilística con índice de confianza. Sin asignar una edad concreta. Sin almacenar ningún dato más allá de la sesión. Sin huella dactilar.</div>
+            <span class="step-tag">RGPD compliant · Cero retención de datos</span>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">Tu plataforma recibe la respuesta vía API</div>
+            <div class="step-desc">Una llamada REST simple devuelve el resultado. Integración en menos de una jornada de desarrollo. Compatible con cualquier plataforma web o app nativa.</div>
+            <span class="step-tag">REST API · SDK disponible</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── VENTAJAS ───────────────────────── -->
+<section id="ventajas" style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="section section-center reveal">
+    <span class="section-tag">Por qué Fingerfy</span>
+    <h2 class="section-title">Lo que ningún otro<br>sistema puede ofrecer</h2>
+    <p class="section-lead">La ventaja de Fingerfy no es técnica. Es regulatoria, comercial y ética al mismo tiempo.</p>
+
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">🛡️</div>
+        <div class="benefit-title">Sin datos biométricos legales</div>
+        <div class="benefit-desc">Las variables que analiza Fingerfy no constituyen datos biométricos en el sentido del artículo 9 del RGPD. No se captura ninguna imagen. No se almacena ninguna plantilla.</div>
+        <div class="benefit-highlight">RGPD · Artículo 9 · Categoría especial: N/A</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">⚡</div>
+        <div class="benefit-title">Fricción cero para el usuario</div>
+        <div class="benefit-desc">El proceso de verificación es invisible para el usuario. No interrumpe el flujo de acceso. No requiere ninguna acción adicional por su parte más allá de interactuar con la pantalla.</div>
+        <div class="benefit-highlight">Conversión: sin impacto vs +25% abandono con selfie y +50% con verificación por DNI</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">💶</div>
+        <div class="benefit-title">Coste 30x inferior</div>
+        <div class="benefit-desc">Las soluciones de verificación facial cuestan entre 0,50€ y 2€ por verificación. Fingerfy opera a una fracción de ese coste, con un modelo de precios por volumen que escala con tu base de usuarios.</div>
+        <div class="benefit-highlight">Desde 0,05€ / verificación</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔒</div>
+        <div class="benefit-title">Anti-spoofing incorporado</div>
+        <div class="benefit-desc">El sistema detecta intentos de suplantación mediante materiales sintéticos o dispositivos artificiales. Una propiedad del tejido humano que no puede replicarse técnicamente.</div>
+        <div class="benefit-highlight">No replicable con guantes o prótesis</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🌍</div>
+        <div class="benefit-title">Diseñado para compliance europeo</div>
+        <div class="benefit-desc">Desarrollado con la Ley de Servicios Digitales (DSA), el Reglamento de IA de la UE y la normativa española de protección de menores como marco de referencia desde el primer día.</div>
+        <div class="benefit-highlight">DSA · AI Act · LOPD-GDD</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔌</div>
+        <div class="benefit-title">Integración en un día</div>
+        <div class="benefit-desc">API REST documentada. SDK disponible para web y apps nativas iOS/Android. Sin cambios en tu infraestructura. Sin hardware adicional. Tu equipo de desarrollo ya puede integrarlo.</div>
+        <div class="benefit-highlight">REST API · iOS · Android · Web</div>
+      </div>
+    </div>
+
+    <!-- Compliance bar -->
+    <div class="compliance-bar" id="compliance">
+      <div class="compliance-item">
+        <div class="compliance-icon">📋</div>
+        <div>
+          <div class="compliance-label">DSA — Ley de Servicios Digitales UE</div>
+          <div class="compliance-sub">Verificación de edad sin captura de imagen</div>
+        </div>
+      </div>
+      <div class="compliance-item">
+        <div class="compliance-icon">🤖</div>
+        <div>
+          <div class="compliance-label">Reglamento IA · EU AI Act</div>
+          <div class="compliance-sub">Sistema de bajo riesgo · Sin reconocimiento biométrico</div>
+        </div>
+      </div>
+      <div class="compliance-item">
+        <div class="compliance-icon">🇪🇸</div>
+        <div>
+          <div class="compliance-label">LOPD-GDD · Protección de menores</div>
+          <div class="compliance-sub">Sin tratamiento de categorías especiales</div>
+        </div>
+      </div>
+      <div class="compliance-item">
+        <div class="compliance-icon">🌐</div>
+        <div>
+          <div class="compliance-label">RGPD · Principio de minimización</div>
+          <div class="compliance-sub">Cero retención de datos · Privacy by design</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMPARATIVA ───────────────────── -->
+<section>
+  <div class="section section-center reveal">
+    <span class="section-tag">Comparativa</span>
+    <h2 class="section-title">Fingerfy vs.<br><em>las alternativas</em></h2>
+
+    <div class="comparison-table">
+      <div class="comparison-header">
+        <div class="comparison-header-cell" style="text-align:left;">Característica</div>
+        <div class="comparison-header-cell highlight">Fingerfy</div>
+        <div class="comparison-header-cell">Verificación facial</div>
+        <div class="comparison-header-cell">PIN / Formulario</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-feature">Sin captura de imagen</div>
+        <div class="comparison-cell check">✓</div>
+        <div class="comparison-cell cross">✗</div>
+        <div class="comparison-cell check">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-feature">Sin datos biométricos RGPD Art. 9</div>
+        <div class="comparison-cell check">✓</div>
+        <div class="comparison-cell cross">✗</div>
+        <div class="comparison-cell check">✓</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-feature">No bypasseable con cuentas de terceros</div>
+        <div class="comparison-cell check">✓</div>
+        <div class="comparison-cell partial">Parcial</div>
+        <div class="comparison-cell cross">✗</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-feature">Fricción de usuario</div>
+        <div class="comparison-cell check">Ninguna</div>
+        <div class="comparison-cell cross">Alta</div>
+        <div class="comparison-cell partial">Media</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-feature">Coste por verificación</div>
+        <div class="comparison-cell check">~0,05€</div>
+        <div class="comparison-cell cross">0,50–2€</div>
+        <div class="comparison-cell partial">~0,10€</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-feature">Anti-spoofing biológico</div>
+        <div class="comparison-cell check">✓</div>
+        <div class="comparison-cell partial">Parcial</div>
+        <div class="comparison-cell cross">✗</div>
+      </div>
+      <div class="comparison-row" style="border-bottom:none;">
+        <div class="comparison-feature">Funciona en cualquier dispositivo</div>
+        <div class="comparison-cell check">✓</div>
+        <div class="comparison-cell cross">Req. cámara frontal</div>
+        <div class="comparison-cell check">✓</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NÚMEROS ───────────────────────── -->
+<section style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="section reveal">
+    <div class="proof-grid">
+      <div class="proof-card">
+        <div class="proof-card-tag">Mercado</div>
+        <div class="proof-card-stat">144M</div>
+        <div class="proof-card-label">Usuarios diarios en Roblox. Una de las plataformas que más urgentemente necesita una solución de verificación sin imagen.</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-card-tag">Ahorro potencial</div>
+        <div class="proof-card-stat">600M€</div>
+        <div class="proof-card-label">Coste anual que Roblox podría eliminar sustituyendo su sistema actual de verificación facial por Fingerfy.</div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-card-tag">Validación</div>
+        <div class="proof-card-stat">2+</div>
+        <div class="proof-card-label">Solicitudes de patente en trámite con informe de patentabilidad positivo. Colaboración activa con la Universidad de Alicante.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA DUAL ───────────────────────── -->
+<section id="contacto" style="background:linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);border-top:1px solid var(--border);">
+  <div class="section reveal">
+    <div style="text-align:center;margin-bottom:48px;">
+      <span class="section-tag">Contacto</span>
+      <h2 class="section-title">Empieza hoy</h2>
+      <p class="section-lead">Tanto si representas una plataforma que necesita compliance ahora como si quieres explorar la integración, estamos listos para hablar.</p>
+    </div>
+
+    <div class="cta-layout">
+      <!-- Demo empresarial -->
+      <div class="cta-card primary-card">
+        <div class="cta-card-tag">Para empresas · Demo personalizada</div>
+        <div class="cta-card-title">Solicitar demo<br>empresarial</div>
+        <div class="cta-card-desc">Para plataformas de videojuegos, juego online y servicios digitales con necesidad de compliance en protección de menores. Te mostramos cómo se integra en tu stack en menos de una jornada.</div>
+        <div class="cta-form">
+          <input class="form-input" type="text" placeholder="Nombre y apellidos" autocomplete="name">
+          <input class="form-input" type="email" placeholder="Email corporativo" autocomplete="email">
+          <input class="form-input" type="text" placeholder="Empresa / plataforma">
+          <select class="form-select">
+            <option value="" disabled selected>Tipo de plataforma</option>
+            <option>Videojuegos</option>
+            <option>Juego online / apuestas</option>
+            <option>Red social</option>
+            <option>Streaming / contenido</option>
+            <option>E-commerce</option>
+            <option>Otro</option>
+          </select>
+          <button class="btn-primary" style="justify-content:center;" onclick="alert('Gracias. Te contactaremos en menos de 24h.')">
+            Solicitar demo →
+          </button>
+          <p class="form-note">Sin compromiso. Respuesta en menos de 24h. <a href="#">Política de privacidad</a>.</p>
+        </div>
+      </div>
+
+      <!-- Early access -->
+      <div class="cta-card" id="early-access">
+        <div class="cta-card-tag teal">Early access · Lista de espera</div>
+        <div class="cta-card-title">Únete a la<br>lista de espera</div>
+        <div class="cta-card-desc">Los primeros partners que se integren recibirán acceso prioritario, condiciones preferenciales y acompañamiento directo del equipo técnico durante la integración.</div>
+        <div class="cta-form">
+          <input class="form-input" type="email" placeholder="Tu email">
+          <input class="form-input" type="text" placeholder="Empresa (opcional)">
+          <button class="btn-secondary" style="justify-content:center;border-color:rgba(77,217,172,0.3);color:var(--teal);" onclick="alert('¡Apuntado! Te avisaremos cuando abramos el acceso anticipado.')">
+            Unirse a early access
+          </button>
+          <p class="form-note">Solo recibirás emails sobre el lanzamiento de Fingerfy Age. Sin spam. <a href="#">Privacidad</a>.</p>
+        </div>
+
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:0.1em;margin-bottom:12px;text-transform:uppercase;">Lo que obtienes siendo early partner</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--muted);">
+              <span style="color:var(--teal);">✓</span>
+              <span>Acceso prioritario al API beta</span>
+            </div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--muted);">
+              <span style="color:var(--teal);">✓</span>
+              <span>Precio preferencial bloqueado</span>
+            </div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--muted);">
+              <span style="color:var(--teal);">✓</span>
+              <span>Acompañamiento técnico directo</span>
+            </div>
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--muted);">
+              <span style="color:var(--teal);">✓</span>
+              <span>Co-diseño de la integración con tu plataforma</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────── -->
+<footer>
+  <div class="footer-logo">finger<span>fy</span></div>
+  <ul class="footer-links">
+    <li><a href="#">Privacidad</a></li>
+    <li><a href="#">Términos de uso</a></li>
+    <li><a href="#">Contacto</a></li>
+  </ul>
+  <div class="footer-patent">Tecnología con solicitudes de patente en trámite · OEPM</div>
+  <div class="footer-legal">© 2026 Fingerfy · Alicante, España · fingerfy.app</div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 40) {
+    nav.style.background = 'rgba(8,12,18,0.97)';
+  } else {
+    nav.style.background = 'rgba(8,12,18,0.85)';
+  }
+});
+</script>
+</body>
+</html>
